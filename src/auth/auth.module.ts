@@ -16,6 +16,9 @@ import { JwtServiceAdapter } from './infrastructure/services/jwt.service';
 import { BcryptServiceAdapter } from './infrastructure/services/bcrypt.service';
 import { TypeOrmUserRepository } from './infrastructure/repositories/typeorm/user.repository';
 
+import { AuthUseCase } from './application/use-cases/auth.use-case';
+import { GoogleService } from './infrastructure/google/google.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -28,6 +31,8 @@ import { TypeOrmUserRepository } from './infrastructure/repositories/typeorm/use
     AuthService,
     LoginUserUseCase,
     RegisterUserUseCase,
+    AuthUseCase,
+    GoogleService,
     {
       provide: 'IUserRepositoryOutputPort',
       useClass: TypeOrmUserRepository,

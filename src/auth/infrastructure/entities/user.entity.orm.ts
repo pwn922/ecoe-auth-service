@@ -18,4 +18,10 @@ export class UserEntity {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @Column()
+  role: string;
+
+  @Column()
+  teacherType: string | null;
 }

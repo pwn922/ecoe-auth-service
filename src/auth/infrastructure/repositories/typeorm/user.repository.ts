@@ -11,7 +11,7 @@ import { Injectable } from "@nestjs/common";
 export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
     constructor(
         @InjectRepository(UserEntity)
-        private usersRepository: Repository<User>,
+        private usersRepository: Repository<UserEntity>,
     ) {}
 
     create(user: CreateUserCommand): Promise<User> {
@@ -26,8 +26,17 @@ export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
         throw new Error("Method not implemented.");
     }
 
-    findByEmail(email: string): Promise<User | null> {
-        throw new Error("Method not implemented.");
+    async findByEmail(email: string): Promise<User | null> {
+        const entity = await this.usersRepository.findOne({ where: { email } });
+        if (!entity) return null;
+        return User.fromPrimitives({
+            id: entity.id,
+            fullname: entity.fullname,
+            email: entity.email,
+            hashedPassword: entity.password,
+            role: entity.role, 
+            teacherType: entity.teacherType,  
+        });
     }
 
     update(user: User): Promise<void> {

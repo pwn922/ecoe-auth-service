@@ -4,10 +4,15 @@ import { LoginUserCommand } from 'src/auth/application/commands/login-user.comma
 import { RegisterUserCommand } from 'src/auth/application/commands/register-user.command';
 import { LoginUserDto } from '../dtos/login-user.dto';
 import { RegisterUserDto } from '../dtos/register-user.dto';
+import { GoogleLoginDto } from '../dtos/google-login.dto';
+import { AuthUseCase} from 'src/auth/application/use-cases/auth.use-case';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authUseCase: AuthUseCase,
+  ) {}
 
   @Post('login')
   async login(@Body() body: LoginUserDto): Promise<{ accessToken: string }> {
@@ -26,4 +31,10 @@ export class AuthController {
 
     await this.authService.register(command);
   }
+
+  @Post('google-login')
+async googleLogin(@Body() body: GoogleLoginDto) {
+  return this.authUseCase.loginWithGoogle(body.token, body.userType, body.teacherType);
+}
+
 }
