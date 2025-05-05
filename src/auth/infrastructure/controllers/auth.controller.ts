@@ -26,8 +26,8 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body() body: LoginUserRequestDto): Promise<{ accessToken: string }> {
         try {
-            const idToken = body.idToken;
-            const googleUserPayload = await this.googleService.verifyToken(idToken);
+            const code = body.code;
+            const googleUserPayload = await this.googleService.verifyToken(code);
             if (!googleUserPayload) {
                 throw new UnauthorizedException("Unauthorized access");
             }
