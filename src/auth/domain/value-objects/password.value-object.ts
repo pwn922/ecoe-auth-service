@@ -1,7 +1,7 @@
-import { ArgumentInvalidException } from "../exceptions/argument-invalid.exception";
+import { ArgumentInvalidError } from "../errors/argument-invalid.error";
 
 
-export class Password {
+export class PasswordValueObject {
     private readonly value: string;
     constructor(value: string) {
         this.value = value;
@@ -10,7 +10,7 @@ export class Password {
 
     private ensureIsValid(): void {
         if (typeof this.value !== 'string' || this.value.trim().length === 0) {
-            throw new ArgumentInvalidException(`The Password '${this.value}' not have a valid format.`);
+            throw new ArgumentInvalidError(`The Password '${this.value}' not have a valid format.`);
         }
     }
 

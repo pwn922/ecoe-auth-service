@@ -1,7 +1,7 @@
-import { ArgumentInvalidException } from '../exceptions/argument-invalid.exception';
+import { ArgumentInvalidError } from '../errors/argument-invalid.error';
 
 
-export class Id {
+export class IdValueObject {
   private readonly value: string;
 
   constructor(value: string) {
@@ -11,7 +11,7 @@ export class Id {
 
   private ensureIsValid(): void {
     if (typeof this.value !== 'string' || this.value.trim().length === 0) {
-      throw new ArgumentInvalidException(`The Id '${this.value}' not have a valid format.`);
+      throw new ArgumentInvalidError(`The Id '${this.value}' not have a valid format.`);
     }
   }
 

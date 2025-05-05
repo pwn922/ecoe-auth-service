@@ -1,7 +1,7 @@
-import { ArgumentInvalidException } from "../exceptions/argument-invalid.exception";
+import { ArgumentInvalidError } from "../errors/argument-invalid.error";
 
 
-export class Fullname {
+export class FullnameValueObject {
     private readonly value: string;
     constructor(value: string) {
         this.value = value;
@@ -10,7 +10,7 @@ export class Fullname {
 
     private ensureIsValid(): void {
         if (typeof this.value !== 'string' || this.value.trim().length === 0) {
-            throw new ArgumentInvalidException(`The Fullname '${this.value}' not have a valid format.`);
+            throw new ArgumentInvalidError(`The Fullname '${this.value}' not have a valid format.`);
         }
     }
 

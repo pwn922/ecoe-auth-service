@@ -1,7 +1,7 @@
-import { ArgumentInvalidException } from "../exceptions/argument-invalid.exception";
+import { ArgumentInvalidError } from "../errors/argument-invalid.error";
 
 
-export class Email {
+export class EmailValueObject {
     private readonly value: string;
     constructor(value: string) {
         this.value = value;
@@ -10,7 +10,7 @@ export class Email {
 
     private ensureIsValid(): void {
         if (typeof this.value !== 'string' || this.value.trim().length === 0) {
-            throw new ArgumentInvalidException(`The Email '${this.value}' not have a valid format.`);
+            throw new ArgumentInvalidError(`The Email '${this.value}' not have a valid format.`);
         }
     }
 
