@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class GoogleService {
     private readonly clientId: string;
+    private readonly clientSecret: string;
     private readonly client: OAuth2Client;
 
     constructor(private readonly configService: ConfigService) {
@@ -15,7 +16,13 @@ export class GoogleService {
             throw new Error('GOOGLE_CLIENT_ID is not defined');
         }
 
-        this.client = new OAuth2Client(this.clientId);
+        this.clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+
+        if (!this.clientSecret) {
+            throw new Error('GOOGLE_CLIENT_SECRET is not defined');
+        }
+
+        this.client = new OAuth2Client(this.clientId, this.clientSecret);
     }
 
     // TODO: COMPROBAR CON CORREOS QUE SEAN DE LA UCN
