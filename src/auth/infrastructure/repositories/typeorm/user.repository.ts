@@ -1,49 +1,70 @@
-import { CreateUserCommand } from "src/auth/application/commands/created-user.command";
-import { IUserRepositoryOutputPort } from "src/auth/application/ports/out/user.repository.out.port";
 import { User } from "src/auth/domain/entities/user.entity";
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from "../../entities/user.entity.orm";
 import { Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
+import { UserEntity } from "../../entities/user.entity.orm";
+import { IUserRepositoryOutputPort } from "src/auth/domain/ports/out/user.repository.out.port";
+import { UserMapper } from "../../mappers/user.mapper";
 
 
 @Injectable()
 export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
     constructor(
         @InjectRepository(UserEntity)
-        private usersRepository: Repository<UserEntity>,
+        private readonly usersRepository: Repository<UserEntity>,
     ) {}
 
-    create(user: CreateUserCommand): Promise<User> {
-        throw new Error("Method not implemented.");
+    async save(user: User): Promise<User> {
+        const entity = this.usersRepository.create(
+            UserMapper.toEntity(user)
+        );
+
+        const saved = await this.usersRepository.save(entity);
+        return UserMapper.toDomain(saved);
     }
 
-    save(user: User): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
+    async findById(id: string): Promise<User | null> {
+        const entity = await this.usersRepository.findOne({
+            where: { id },
+            relations: ['role'],
+        });
+        
+        if (!entity) {
+            return null;
+        }
 
-    findById(id: string): Promise<User | null> {
-        throw new Error("Method not implemented.");
+        return UserMapper.toDomain(entity);
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        const entity = await this.usersRepository.findOne({ where: { email } });
-        if (!entity) return null;
-        return User.fromPrimitives({
-            id: entity.id,
-            fullname: entity.fullname,
-            email: entity.email,
-            hashedPassword: entity.password,
-            role: entity.role, 
-            teacherType: entity.teacherType,  
+        const entity = await this.usersRepository.findOne({
+            where: { email },
+            relations: ['role'],
         });
+
+        if (!entity) {
+            return null;
+        }
+
+        return UserMapper.toDomain(entity);
     }
 
-    update(user: User): Promise<void> {
-        throw new Error("Method not implemented.");
+    async update(user: User): Promise<void> {
+        const entity = await this.usersRepository.findOne({
+            where: { id: user.getId() },
+            relations: ['role'],
+        });
+
+        if (!entity) {
+            throw new Error(`User with id ${user.getId()} not found`);
+        }
+
+        const userUpdated = UserMapper.toEntity(user);
+
+        await this.usersRepository.save(userUpdated);
     }
-    
-    delete(id: string): Promise<void> {
-        throw new Error("Method not implemented.");
+
+    async delete(id: string): Promise<void> {
+        await this.usersRepository.delete(id);
     }
 }
