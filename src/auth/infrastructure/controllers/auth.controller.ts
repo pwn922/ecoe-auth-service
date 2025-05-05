@@ -23,6 +23,7 @@ export class AuthController {
     //
     
     @Post('login')
+    @HttpCode(HttpStatus.OK)
     async login(@Body() body: LoginUserRequestDto): Promise<{ accessToken: string }> {
         try {
             const idToken = body.idToken;
