@@ -1,27 +1,34 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { IsEmail, IsString, MinLength } from "class-validator";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm';
+import { RoleEntity } from './role.entity.orm';
 
-@Entity('users')
-@Unique(["email"])
+@Entity('usuarios')
+@Unique(['email'])
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column()
-  fullname: string;
+    @Column()
+    fullname: string;
 
-  @Column()
-  @IsEmail()
-  email: string;
+    @Column()
+    email: string;
 
-  @Column()
-  @IsString()
-  @MinLength(6)
-  password: string;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
-  @Column()
-  role: string;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: Date;
 
-  @Column()
-  teacherType: string | null;
+    @ManyToOne(() => RoleEntity, role => role.users)
+    @JoinColumn({ name: 'role_id' })
+    role: RoleEntity;
 }
