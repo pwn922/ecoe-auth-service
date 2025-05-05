@@ -1,6 +1,6 @@
-import { TokenPayloadCommand } from '../../commands/token-payload.command';
+import { TokenPayloadDto } from '../../dtos/token-payload.dto';
 
 export interface ITokenServiceOutputPort {
-    generateAccessToken(payload: TokenPayloadCommand): Promise<string>;
-    generateRefreshToken(payload: TokenPayloadCommand): Promise<string>;
+    generateAccessToken(payload: TokenPayloadDto): Promise<string>;
+    generateRefreshToken(payload: TokenPayloadDto): Promise<string>;
 }

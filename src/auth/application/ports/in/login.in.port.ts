@@ -1,5 +1,5 @@
-import { LoginUserCommand } from "../../commands/login-user.command";
+import { LoginUserDto } from "../../dtos/login-user.dto";
 
 export interface LoginUserInputPort {
-  execute(command: LoginUserCommand): Promise<string>;
+  execute(dto: LoginUserDto): Promise<string>;
 }

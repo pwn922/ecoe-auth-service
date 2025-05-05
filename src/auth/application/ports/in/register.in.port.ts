@@ -1,5 +1,6 @@
-import { RegisterUserCommand } from "../../commands/register-user.command";
+import { User } from "src/auth/domain/entities/user.entity";
+import { RegisterUserDto } from "../../dtos/register-user.dto";
 
 export interface RegisterUserInputPort {
-  execute(command: RegisterUserCommand): Promise<void>;
+  execute(registerUserDto: RegisterUserDto): Promise<User>;
 }
