@@ -1,40 +1,74 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from 'src/auth/application/services/auth.service';
-import { LoginUserCommand } from 'src/auth/application/commands/login-user.command';
-import { RegisterUserCommand } from 'src/auth/application/commands/register-user.command';
-import { LoginUserDto } from '../dtos/login-user.dto';
-import { RegisterUserDto } from '../dtos/register-user.dto';
-import { GoogleLoginDto } from '../dtos/google-login.dto';
-import { AuthUseCase} from 'src/auth/application/use-cases/auth.use-case';
+import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { LoginUserRequestDto, LoginUserResponseDto } from '../dtos/login-user.dto';
+import { RegisterUserRequestDto } from '../dtos/register-user.dto';
+// import { GoogleLoginDto } from '../dtos/google-login.dto';
+import { LoginUserUseCase } from 'src/auth/application/use-cases/login-user.use-case';
+import { LoginUserDto } from 'src/auth/application/dtos/login-user.dto';
+import { RegisterUserUseCase } from 'src/auth/application/use-cases/register-user.use-case';
+import { RegisterUserDto } from 'src/auth/application/dtos/register-user.dto';
+import { GoogleService } from '../services/google.service';
+import { UnauthorizedAccessError } from 'src/auth/application/errors/unauthorized-access.error';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly authUseCase: AuthUseCase,
-  ) {}
+    constructor(
+        private readonly loginUserUseCase: LoginUserUseCase,
+        private readonly registerUserUseCase: RegisterUserUseCase,
+        
+        private readonly googleService: GoogleService,
+    ) {}
 
-  @Post('login')
-  async login(@Body() body: LoginUserDto): Promise<{ accessToken: string }> {
-    const command = new LoginUserCommand(body.email, body.password);
-    const accessToken = await this.authService.login(command);
-    return { accessToken };
-  }
+    // TODO: FALTARIA EL REGISTER DE UNA JEFATURA, O VER COMO HACERLO
+    //@Post('register-jefatura')
+    //
+    
+    @Post('login')
+    async login(@Body() body: LoginUserRequestDto): Promise<{ accessToken: string }> {
+        try {
+            const idToken = body.idToken;
+            const googleUserPayload = await this.googleService.verifyToken(idToken);
+            if (!googleUserPayload) {
+                throw new UnauthorizedException("Unauthorized access");
+            }
 
-  @Post('register')
-  async register(@Body() body: RegisterUserDto): Promise<void> {
-    const command = new RegisterUserCommand(
-      body.fullname,
-      body.email,
-      body.password,
-    );
+            const loginUserDto: LoginUserDto = {
+                email: googleUserPayload.email,
+                userType: body.userType
+            };
+            
+            const accessToken = await this.loginUserUseCase.execute(loginUserDto);
 
-    await this.authService.register(command);
-  }
+            return { accessToken };
+        } catch (error) {
+            if (error instanceof UnauthorizedAccessError) {
+                throw new UnauthorizedException(error.message);
+            }
 
-  @Post('google-login')
-async googleLogin(@Body() body: GoogleLoginDto) {
-  return this.authUseCase.loginWithGoogle(body.token, body.userType, body.teacherType);
-}
+            // console.error('Unexpected error during login:', error);
+            throw error;
+        }
+    }
 
+
+    @Post('register')
+    @HttpCode(HttpStatus.CREATED)
+    async register(@Body() body: RegisterUserRequestDto): Promise<void> {
+        try {
+            const registerUser: RegisterUserDto = {
+                //fullname: body.fullname,
+                email: body.email,
+                role: body.role,
+            };
+
+            console.log(registerUser);
+
+            const user = await this.registerUserUseCase.execute(registerUser);
+            if (!user) {
+                throw new BadRequestException('Failed to register user');
+            }
+
+        } catch (error) {
+            throw new InternalServerErrorException(`An error occurred while registering the user: ${error.message}`);
+        }
+    }
 }
