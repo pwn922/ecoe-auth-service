@@ -1,4 +1,4 @@
-import { User } from "src/auth/domain/user.entity";
+import { User } from "src/auth/domain/entities/user.entity";
 import { UserProps } from "src/auth/domain/types/user.props";
 
 
