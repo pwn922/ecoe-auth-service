@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ITokenServiceOutputPort } from '../../application/ports/out/token-service.output-port';
 import { TokenPayloadDto } from '../../application/dtos/token-payload.dto';
 import { ConfigService } from '@nestjs/config';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class JwtServiceAdapter implements ITokenServiceOutputPort {
@@ -13,7 +14,7 @@ export class JwtServiceAdapter implements ITokenServiceOutputPort {
 
     async generateAccessToken(payload: TokenPayloadDto): Promise<string> {
         return this.jwtService.signAsync(payload, {
-            secret: this.configService.get<string>('JWT_ACCESS_SECRET', 'secret123'),
+            secret: this.configService.get<string>('JWT_ACCESS_SECRET') || randomBytes(64).toString('hex'),
             expiresIn: '1h',
         });
     }
