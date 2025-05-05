@@ -1,13 +1,29 @@
 @AUTH_URL = http://127.0.0.1:3000
-@REGISTER_ENDPOINT = auth/register
 
-POST {{AUTH_URL}}/{{REGISTER_ENDPOINT}} HTTP/1.1
+@API_VERSION = /api/v1
+
+@REGISTER_ENDPOINT = /auth/register
+
+@LOGIN_ENDPOINT = /auth/login
+
+### INDEX
+GET {{AUTH_URL}}/ HTTP/1.1
+
+
+### REGISTER
+POST {{AUTH_URL}}{{API_VERSION}}{{REGISTER_ENDPOINT}} HTTP/1.1
 CONTENT-TYPE: application/json
 
 {
-    "name": "sample",
-    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
+    "email": "example@alumnos.ucn.cl",
+    "role": "estudiante"
 }
 
-###
-GET {{AUTH_URL}}/
+### LOGIN
+POST {{AUTH_URL}}{{API_VERSION}}{{LOGIN_ENDPOINT}} HTTP/1.1
+CONTENT-TYPE: application/json
+
+{
+    "idToken": "token",
+    "userType": "estudiante"
+}
