@@ -1,73 +1,62 @@
-import { Email } from "../value-objects/email.value-object";
-import { Fullname } from "../value-objects/fullname.value-object";
-import { Password } from "../value-objects/hashed-password.value-object";
-import { Id } from "../value-objects/id.value-object";
+import { Role } from "./role.entity";
+import { UserProps } from "../types/user.props";
+import { EmailValueObject } from "../value-objects/email.value-object";
+import { FullnameValueObject } from "../value-objects/fullname.value-object";
+import { IdValueObject } from "../value-objects/id.value-object";
 
 export class User {
-  private id: Id;
-  private readonly fullname: Fullname;
-  private readonly email: Email;
-  private readonly password: Password;
-  private readonly role: string; // No se si es necesario dejar un rol de "estudiante" por defecto
-  private readonly teacherType: string | null = null; // valor defecto es null
+    private id: IdValueObject | null;
+    private readonly fullname: FullnameValueObject;
+    private readonly email: EmailValueObject;
+    private readonly role: Role;
 
-  private constructor(
-    id: Id,
-    fullname: Fullname,
-    email: Email,
-    password: Password,
-    role?: string,
-    teacherType?: string | null,
-  ) {
-    this.id = id;
-    this.fullname = fullname;
-    this.email = email;
-    this.password = password;
-    this.role = role || this.role; // Default to "estudiante" if not provided
-    this.teacherType = teacherType || this.teacherType; // Default to null if not provided
-  }
+    private constructor(
+        id: IdValueObject | null,
+        fullname: FullnameValueObject,
+        email: EmailValueObject,
+        role: Role,
+    ) {
+            this.id = id;
+            this.fullname = fullname;
+            this.email = email;
+            this.role = role;
+    }
 
-  static fromPrimitives(props: {
-    id: string;
-    fullname: string;
-    email: string;
-    hashedPassword: string;
-    role: string;
-    teacherType: string | null;
-  }): User {
-    return new User(
-      new Id(props.id),
-      new Fullname(props.fullname),
-      new Email(props.email),
-      new Password(props.hashedPassword),
-      props.role,
-      props.teacherType,
-    );
-  }
+    static fromPrimitives(props: UserProps): User {
+        return new User(
+            props.id ? new IdValueObject(props.id) : null,
+            props.fullname ? new FullnameValueObject(props.fullname) : null,
+            new EmailValueObject(props.email),
+            // new PasswordValueObject(props.password),
+            Role.fromPrimitives({
+                id: props.role.id,
+                name: props.role.name,
+            }),
+        );
+    }
 
-  toPrimitives(): {
-    id: string;
-    fullname: string;
-    email: string;
-    hashedPassword: string;
-    role: string;
-    teacherType: string | null;
-  } {
-    return {
-      id: this.id?.toPrimitive(),
-      fullname: this.fullname.toPrimitive(),
-      email: this.email.toPrimitive(),
-      hashedPassword: this.password.toPrimitive(),
-      role: this.role,
-      teacherType: this.teacherType,
-    };
-  }
+    toPrimitives(): UserProps {
+        return {
+            id: this.id?.toPrimitive(),
+            fullname: this.fullname?.toPrimitive() ?? '',
+            email: this.email.toPrimitive(),
+            role: this.role.toPrimitives(),
+        };
+    }
 
-  public getRole(): string {
-    return this.role;
-  }
+    getId(): string | undefined {
+        return this.id?.toPrimitive();
+    }
 
-  public getTeacherType(): string {
-    return this.teacherType;
-  }
+    getRole(): Role {
+        return this.role;
+    }
+
+    getFullname(): string {
+        return this.fullname?.toPrimitive() ?? '';
+    }
+
+    getEmail(): string {
+        return this.email.toPrimitive();
+    }
 }
