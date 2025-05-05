@@ -50,7 +50,7 @@ export class GoogleService {
                 return null;
             }
 
-            if (!payload.email.endsWith('@ucn.cl')) {
+            if (!payload.hd || !payload.hd.endsWith('.ucn.cl')) {
                 return null;
             }
 
