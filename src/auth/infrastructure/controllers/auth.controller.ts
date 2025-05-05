@@ -14,7 +14,6 @@ export class AuthController {
     constructor(
         private readonly loginUserUseCase: LoginUserUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
-        
         private readonly googleService: GoogleService,
     ) {}
 
