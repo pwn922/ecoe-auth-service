@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ITokenServiceOutputPort } from '../../application/ports/out/token-service.output-port';
-import { TokenPayloadCommand } from '../../application/commands/token-payload.command';
+import { TokenPayloadDto } from '../../application/dtos/token-payload.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -11,14 +11,14 @@ export class JwtServiceAdapter implements ITokenServiceOutputPort {
         private readonly configService: ConfigService,
     ) {}
 
-    async generateAccessToken(payload: TokenPayloadCommand): Promise<string> {
+    async generateAccessToken(payload: TokenPayloadDto): Promise<string> {
         return this.jwtService.signAsync(payload, {
-            secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+            secret: this.configService.get<string>('JWT_ACCESS_SECRET', 'secret123'),
             expiresIn: '1h',
         });
     }
 
-    async generateRefreshToken(payload: TokenPayloadCommand): Promise<string> {
+    async generateRefreshToken(payload: TokenPayloadDto): Promise<string> {
         throw new Error('Method not implemented.');
     }
 
