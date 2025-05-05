@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 export class GoogleService {
     private readonly clientId: string;
     private readonly clientSecret: string;
+    private readonly redirectUri: string;
     private readonly client: OAuth2Client;
 
     constructor(private readonly configService: ConfigService) {
@@ -22,7 +23,12 @@ export class GoogleService {
             throw new Error('GOOGLE_CLIENT_SECRET is not defined');
         }
 
-        this.client = new OAuth2Client(this.clientId, this.clientSecret);
+        this.redirectUri = this.configService.get<string>('FRONTED_URL');
+        if (!this.redirectUri) {
+            throw new Error('FRONTED_URL is not defined');
+        }
+
+        this.client = new OAuth2Client(this.clientId, this.clientSecret, this.redirectUri);
     }
 
     // TODO: COMPROBAR CON CORREOS QUE SEAN DE LA UCN
