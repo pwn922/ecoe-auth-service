@@ -19,25 +19,39 @@ export class GoogleService {
     }
 
     // TODO: COMPROBAR CON CORREOS QUE SEAN DE LA UCN
-    async verifyToken(token: string): Promise<GoogleUserPayload | null> {
+    async verifyToken(code: string): Promise<GoogleUserPayload | null> {
         try {
+            const { tokens } = await this.client.getToken(code);
+            const idToken = tokens.id_token;
+
+            if (!idToken) return null;
+
             const ticket = await this.client.verifyIdToken({
-                idToken: token,
+                idToken,
                 audience: this.clientId,
             });
             
             const payload = ticket.getPayload();
-            
-            if (!payload) return null;
 
-            return {
+            if (!payload || !payload.email || !payload.email_verified) {
+                return null;
+            }
+
+            if (!payload.email.endsWith('@ucn.cl')) {
+                return null;
+            }
+
+            const googleUserPayload: GoogleUserPayload = {
                 email: payload.email,
                 name: payload.name,
                 hd: payload.hd,
-            } as GoogleUserPayload;
+            };
 
+            return googleUserPayload;
         } catch (e) {
-            return null;    
+            console.error('Token verification error:', e);
+            return null;
         }
     }
+
 }
