@@ -1,6 +1,8 @@
+/*
+
 import { Injectable } from '@nestjs/common';
 import { GoogleService } from '../../infrastructure/google/google.service';
-import { IUserRepositoryOutputPort } from '../ports/out/user.repository.out.port';
+import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.repository.out.port';
 
 @Injectable()
 export class AuthUseCase {
@@ -42,3 +44,4 @@ export class AuthUseCase {
     };
   }
 }
+  */

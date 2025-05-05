@@ -1,48 +1,46 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IUserRepositoryOutputPort } from '../ports/out/user.repository.out.port';
-import { IPasswordHasherOutputPort } from '../ports/out/password-hasher.output-port';
 import { ITokenServiceOutputPort } from '../ports/out/token-service.output-port';
-import { LoginUserCommand } from '../commands/login-user.command';
+import { LoginUserDto } from '../dtos/login-user.dto';
+import { TokenPayloadDto } from '../dtos/token-payload.dto';
+import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.repository.out.port';
+import { UnauthorizedAccessError } from '../errors/unauthorized-access.error';
+import { UserMapper } from '../mappers/user.mapper';
 import { LoginUserInputPort } from '../ports/in/login.in.port';
-import { InvalidCredentialsException } from '../exceptions/invalid-credentials.exception';
-import { TokenPayloadCommand } from '../commands/token-payload.command';
 
 @Injectable()
 export class LoginUserUseCase implements LoginUserInputPort {
-  constructor(
-    @Inject('IUserRepositoryOutputPort')
-    private readonly userRepository: IUserRepositoryOutputPort,
+    constructor(
+        @Inject('IUserRepositoryOutputPort')
+        private readonly userRepository: IUserRepositoryOutputPort,
 
-    @Inject('IPasswordHasherOutputPort')
-    private readonly passwordHasher: IPasswordHasherOutputPort,
+        @Inject('ITokenServiceOutputPort')
+        private readonly tokenService: ITokenServiceOutputPort,
+    ) {}
 
-    @Inject('ITokenServiceOutputPort')
-    private readonly tokenService: ITokenServiceOutputPort,
-  ) {}
+    async execute(dto: LoginUserDto): Promise<string> {
+        try {
+            const user = await this.userRepository.findByEmail(dto.email);
 
-  async execute(command: LoginUserCommand): Promise<string> {
-    const user = await this.userRepository.findByEmail(command.email);
+            if (!user) {
+                throw new UnauthorizedAccessError('Unauthorized access');
+            }
 
-    if (!user) {
-      throw new InvalidCredentialsException('Invalid credentials');
+            if (user.getRole().toPrimitives().name !== dto.userType) {
+                throw new UnauthorizedAccessError('User role does not match');
+            }
+
+            const userPrimitives = UserMapper.toPrimitives(user);
+
+            const tokenPayload: TokenPayloadDto = {
+                sub: userPrimitives.id,
+                email: userPrimitives.email,
+                role: userPrimitives.role.name,
+            };
+
+            // TODO: AGREGAR EL REFRESH TOKEN Y CREAR DTO TOKENS
+            return await this.tokenService.generateAccessToken(tokenPayload);
+        } catch (error) {
+            throw new UnauthorizedAccessError('Unauthorized access');
+        }
     }
-
-    const userPrimitives = user.toPrimitives();
-
-    const isPasswordValid = await this.passwordHasher.compare(
-      command.password,
-      userPrimitives.hashedPassword,
-    );
-
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsException('Invalid credentials');
-    }
-
-    const tokenPayload: TokenPayloadCommand = {
-      sub: userPrimitives.id,
-      email: userPrimitives.email,
-    };
-
-    return this.tokenService.generateAccessToken(tokenPayload);
-  }
 }

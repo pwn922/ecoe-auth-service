@@ -1,36 +1,49 @@
-import { IUserRepositoryOutputPort } from "../ports/out/user.repository.out.port";
-import { RegisterUserInputPort } from "../ports/in/register.in.port";
-import { UserAlreadyExistsException } from "src/auth/domain/exceptions/user-already-exists.exception";
-import { RegisterUserCommand } from "../commands/register-user.command";
-import { IPasswordHasherOutputPort } from "../ports/out/password-hasher.output-port";
-import { CreateUserCommand } from "../commands/created-user.command";
 import { Inject, Injectable } from "@nestjs/common";
-
+import { IUserRepositoryOutputPort } from "src/auth/domain/ports/out/user.repository.out.port";
+import { IRoleRepositoryOutputPort } from "src/auth/domain/ports/out/role.repository.out.port";
+import { RegisterUserDto } from "../dtos/register-user.dto";
+import { UserMapper } from "../mappers/user.mapper";
+import { User } from "src/auth/domain/entities/user.entity";
+import { UserAlreadyExistsError } from "../errors/user-already-exists.error";
+import { RoleNotFoundError } from "src/auth/domain/errors/role-not-found.error";
+import { RegisterUserInputPort } from "../ports/in/register.in.port";
 
 @Injectable()
 export class RegisterUserUseCase implements RegisterUserInputPort {
     constructor(
         @Inject('IUserRepositoryOutputPort')
         private readonly userRepository: IUserRepositoryOutputPort,
-        @Inject('IPasswordHasherOutputPort')
-        private readonly passwordHasher: IPasswordHasherOutputPort,
+        @Inject('IRoleRepositoryOutputPort')
+        private readonly roleRepository: IRoleRepositoryOutputPort,
     ) {}
 
-    async execute(command: RegisterUserCommand): Promise<void> {
-        const existingUser = await this.userRepository.findByEmail(command.email);
-        if (existingUser) {
-            throw new UserAlreadyExistsException('User already exists');
+    async execute(registerUserDto: RegisterUserDto): Promise<User> {
+        const roleExists = await this.roleRepository.findByName(registerUserDto.role);
+        
+        if (!roleExists) {
+            throw new RoleNotFoundError('Role not found');
         }
 
-        const hashedPassword = await this.passwordHasher.hash(command.password);
+        await this.checkUserExists(registerUserDto.email);
+        
+        const user = UserMapper.toDomain({
+            id: undefined,
+            fullname: null,
+            email: registerUserDto.email,
+            role: {
+                id: roleExists.toPrimitives().id,
+                name: roleExists.toPrimitives().name,
+            },
+        });
 
-        const createUserCommand = new CreateUserCommand(
-            command.fullname,
-            command.email,
-            hashedPassword
-        );
+        return this.userRepository.save(user);
+    }
 
-        const newUser = await this.userRepository.create(createUserCommand);
-        await this.userRepository.save(newUser);
+    private async checkUserExists(email: string): Promise<void> {
+        const existingUser = await this.userRepository.findByEmail(email);
+        if (existingUser) {
+            throw new UserAlreadyExistsError('User already exists');
+        }
     }
 }
+
