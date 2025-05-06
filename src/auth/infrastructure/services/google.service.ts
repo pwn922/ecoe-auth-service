@@ -23,7 +23,7 @@ export class GoogleService {
             throw new Error('GOOGLE_CLIENT_SECRET is not defined');
         }
 
-        this.redirectUri = this.configService.get<string>('FRONTED_URL');
+        this.redirectUri = this.configService.get<string>('FRONTEND_URL');
         if (!this.redirectUri) {
             throw new Error('FRONTED_URL is not defined');
         }

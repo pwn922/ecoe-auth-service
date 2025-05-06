@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, InternalServerErrorException, UnauthorizedException, Req, Get } from '@nestjs/common';
 import { LoginUserRequestDto, LoginUserResponseDto } from '../dtos/login-user.dto';
 import { RegisterUserRequestDto } from '../dtos/register-user.dto';
 // import { GoogleLoginDto } from '../dtos/google-login.dto';
@@ -9,6 +9,8 @@ import { RegisterUserDto } from 'src/auth/application/dtos/register-user.dto';
 import { GoogleService } from '../services/google.service';
 import { UnauthorizedAccessError } from 'src/auth/application/errors/unauthorized-access.error';
 import { TokenDto } from 'src/auth/application/dtos/token.dto';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -16,6 +18,7 @@ export class AuthController {
         private readonly loginUserUseCase: LoginUserUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly googleService: GoogleService,
+        private readonly jwtService: JwtService,
     ) {}
 
     // TODO: FALTARIA EL REGISTER DE UNA JEFATURA, O VER COMO HACERLO
@@ -71,5 +74,25 @@ export class AuthController {
         }
     }
 
+    @Get('user-info')
+    @HttpCode(HttpStatus.OK)
+    async getUserInfo(@Req() req: Request): Promise<any> {
+        try {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader) {
+                throw new UnauthorizedException('No Authorization header');
+            }
+            const token = authHeader.replace('Bearer ', '');
+            const payload = this.jwtService.decode(token);
+    
+            if (!payload) {
+                throw new UnauthorizedException('Invalid token');
+            }
+    
+            return { payload };
+        } catch (error) {
+            throw new InternalServerErrorException(`An error occurred while retrieving user info: ${error.message}`);
+        }
+    }
 
 }
