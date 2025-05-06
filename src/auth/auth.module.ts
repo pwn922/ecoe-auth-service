@@ -18,6 +18,7 @@ import { RoleEntity } from './infrastructure/entities/role.entity.orm';
 import { TypeOrmRoleRepository } from './infrastructure/repositories/typeorm/role.repository';
 import { RegisterUserUseCase } from './application/use-cases/register-user.use-case';
 import { GoogleService } from './infrastructure/services/google.service';
+import { VerifyTokenUseCase } from './application/use-cases/verify-token.use-case';
 
 // import { AuthUseCase } from './application/use-cases/auth.use-case';
 //import { GoogleService } from './infrastructure/services/google.service';
@@ -33,6 +34,7 @@ import { GoogleService } from './infrastructure/services/google.service';
   providers: [
     LoginUserUseCase,
     RegisterUserUseCase,
+    VerifyTokenUseCase,
     // AuthUseCase,
     GoogleService,
     {
