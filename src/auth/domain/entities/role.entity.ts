@@ -1,4 +1,3 @@
-import { from } from "rxjs";
 import { IdValueObject } from "../value-objects/id.value-object";
 import { RoleNameValueObject } from "../value-objects/rolname.value-object";
 import { RoleProps } from "../types/role.props";
