@@ -11,6 +11,7 @@ import { UnauthorizedAccessError } from 'src/auth/application/errors/unauthorize
 import { TokenDto } from 'src/auth/application/dtos/token.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { VerifyTokenUseCase } from 'src/auth/application/use-cases/verify-token.use-case';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -19,6 +20,7 @@ export class AuthController {
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly googleService: GoogleService,
         private readonly jwtService: JwtService,
+        private readonly verifyTokenUseCase: VerifyTokenUseCase,
     ) {}
 
     // TODO: FALTARIA EL REGISTER DE UNA JEFATURA, O VER COMO HACERLO
@@ -95,4 +97,30 @@ export class AuthController {
         }
     }
 
+    @Get('validate-token')
+    @HttpCode(HttpStatus.OK)
+    async validateToken(@Req() req: Request): Promise<any> {
+        try {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader) {
+                throw new UnauthorizedException('Missing Authorization header');
+            }
+
+            const token = authHeader.replace('Bearer ', '');
+            const isValid = await this.verifyTokenUseCase.execute(token);
+            
+            return { isValid };
+            
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                throw new UnauthorizedException('Token has expired');
+            } else if (error.name === 'JsonWebTokenError') {
+                throw new UnauthorizedException('Invalid token');
+            } else {
+                throw new InternalServerErrorException(
+                    `An error occurred while validating token: ${error.message}`
+                );
+            }
+        }
+    }
 }
