@@ -8,6 +8,7 @@ import { RegisterUserUseCase } from 'src/auth/application/use-cases/register-use
 import { RegisterUserDto } from 'src/auth/application/dtos/register-user.dto';
 import { GoogleService } from '../services/google.service';
 import { UnauthorizedAccessError } from 'src/auth/application/errors/unauthorized-access.error';
+import { TokenDto } from 'src/auth/application/dtos/token.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -18,12 +19,12 @@ export class AuthController {
     ) {}
 
     // TODO: FALTARIA EL REGISTER DE UNA JEFATURA, O VER COMO HACERLO
-    //@Post('register-jefatura')
+    // @Post('register-jefatura')
     //
     
     @Post('login')
     @HttpCode(HttpStatus.OK)
-    async login(@Body() body: LoginUserRequestDto): Promise<{ accessToken: string }> {
+    async login(@Body() body: LoginUserRequestDto): Promise<TokenDto> {
         try {
             const code = body.code;
             const googleUserPayload = await this.googleService.verifyToken(code);
@@ -36,9 +37,8 @@ export class AuthController {
                 userType: body.userType
             };
             
-            const accessToken = await this.loginUserUseCase.execute(loginUserDto);
-
-            return { accessToken };
+            const token = await this.loginUserUseCase.execute(loginUserDto);
+            return token;
         } catch (error) {
             if (error instanceof UnauthorizedAccessError) {
                 throw new UnauthorizedException(error.message);
@@ -48,7 +48,6 @@ export class AuthController {
             throw error;
         }
     }
-
 
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
@@ -71,4 +70,6 @@ export class AuthController {
             throw new InternalServerErrorException(`An error occurred while registering the user: ${error.message}`);
         }
     }
+
+
 }
