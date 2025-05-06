@@ -6,6 +6,7 @@ import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.reposi
 import { UnauthorizedAccessError } from '../errors/unauthorized-access.error';
 import { UserMapper } from '../mappers/user.mapper';
 import { LoginUserInputPort } from '../ports/in/login.in.port';
+import { TokenDto } from '../dtos/token.dto';
 
 @Injectable()
 export class LoginUserUseCase implements LoginUserInputPort {
@@ -17,7 +18,7 @@ export class LoginUserUseCase implements LoginUserInputPort {
         private readonly tokenService: ITokenServiceOutputPort,
     ) {}
 
-    async execute(dto: LoginUserDto): Promise<string> {
+    async execute(dto: LoginUserDto): Promise<TokenDto> {
         try {
             const user = await this.userRepository.findByEmail(dto.email);
 
@@ -37,8 +38,14 @@ export class LoginUserUseCase implements LoginUserInputPort {
                 role: userPrimitives.role.name,
             };
 
-            // TODO: AGREGAR EL REFRESH TOKEN Y CREAR DTO TOKENS
-            return await this.tokenService.generateAccessToken(tokenPayload);
+            const accessToken = await this.tokenService.generateAccessToken(tokenPayload);
+            const refreshToken = await this.tokenService.generateRefreshToken(tokenPayload);
+            const token: TokenDto = {
+                accessToken,
+                refreshToken,
+            };
+
+            return token
         } catch (error) {
             throw new UnauthorizedAccessError('Unauthorized access');
         }
