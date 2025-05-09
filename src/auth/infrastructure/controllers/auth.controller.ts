@@ -1,126 +1,65 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, InternalServerErrorException, UnauthorizedException, Req, Get } from '@nestjs/common';
-import { LoginUserRequestDto, LoginUserResponseDto } from '../dtos/login-user.dto';
-import { RegisterUserRequestDto } from '../dtos/register-user.dto';
-// import { GoogleLoginDto } from '../dtos/google-login.dto';
+import { Controller, Post, Body, HttpCode, HttpStatus, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { LoginGmailUserRequestDto } from '../dtos/login-gmail-user-request.dto';
 import { LoginUserUseCase } from 'src/auth/application/use-cases/login-user.use-case';
 import { LoginUserDto } from 'src/auth/application/dtos/login-user.dto';
-import { RegisterUserUseCase } from 'src/auth/application/use-cases/register-user.use-case';
-import { RegisterUserDto } from 'src/auth/application/dtos/register-user.dto';
-import { GoogleService } from '../services/google.service';
 import { UnauthorizedAccessError } from 'src/auth/application/errors/unauthorized-access.error';
 import { TokenDto } from 'src/auth/application/dtos/token.dto';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { VerifyTokenUseCase } from 'src/auth/application/use-cases/verify-token.use-case';
+import { VerifyOAuthUserUseCase } from 'src/auth/application/use-cases/verify-oauth-user.usecase';
+import { LoginLocalUserRequestDto } from '../dtos/login-local-user-request.dto';
+import { LoginLocalUserUseCase } from 'src/auth/application/use-cases/login-local-user.usecase';
+import { LoginLocalUserDto } from 'src/auth/application/dtos/login-local-user.dto';
+
 
 @Controller('api/v1/auth')
 export class AuthController {
     constructor(
         private readonly loginUserUseCase: LoginUserUseCase,
-        private readonly registerUserUseCase: RegisterUserUseCase,
-        private readonly googleService: GoogleService,
-        private readonly jwtService: JwtService,
-        private readonly verifyTokenUseCase: VerifyTokenUseCase,
+        private readonly verifyOAuthUserUseCase: VerifyOAuthUserUseCase,
+        private readonly loginLocalUserUseCase: LoginLocalUserUseCase
     ) {}
+ 
 
-    // TODO: FALTARIA EL REGISTER DE UNA JEFATURA, O VER COMO HACERLO
-    // @Post('register-jefatura')
-    //
-    
-    @Post('login')
+    @Post('login-local')
     @HttpCode(HttpStatus.OK)
-    async login(@Body() body: LoginUserRequestDto): Promise<TokenDto> {
+    async loginLocal(@Body() body: LoginLocalUserRequestDto): Promise<TokenDto> {
         try {
-            const code = body.code;
-            const googleUserPayload = await this.googleService.verifyToken(code);
-            if (!googleUserPayload) {
-                throw new UnauthorizedException("Unauthorized access");
-            }
+            const { email, password } = body;
+            const loginLocalUserDto: LoginLocalUserDto = {
+                email: email,
+                password: password
+            };
 
+            return await this.loginLocalUserUseCase.execute(loginLocalUserDto);
+        }
+        catch (error) {     
+            if (error instanceof UnauthorizedAccessError) {
+                throw new UnauthorizedException(error.message);
+            }
+            
+            throw new InternalServerErrorException('Unexpected error during login');
+        }
+    }
+    
+    @Post('login-gmail')
+    @HttpCode(HttpStatus.OK)
+    async loginWithGmail(@Body() body: LoginGmailUserRequestDto): Promise<TokenDto> {
+        try {
+            const oauthUser = await this.verifyOAuthUserUseCase.execute(body.code);
             const loginUserDto: LoginUserDto = {
-                email: googleUserPayload.email,
+                oauthUser: oauthUser,
                 userType: body.userType
             };
-            
+
             const token = await this.loginUserUseCase.execute(loginUserDto);
+            
             return token;
-        } catch (error) {
+        }
+        catch (error) {
             if (error instanceof UnauthorizedAccessError) {
                 throw new UnauthorizedException(error.message);
             }
 
-            // console.error('Unexpected error during login:', error);
-            throw error;
-        }
-    }
-
-    @Post('register')
-    @HttpCode(HttpStatus.CREATED)
-    async register(@Body() body: RegisterUserRequestDto): Promise<void> {
-        try {
-            const registerUser: RegisterUserDto = {
-                //fullname: body.fullname,
-                email: body.email,
-                role: body.role,
-            };
-
-            console.log(registerUser);
-
-            const user = await this.registerUserUseCase.execute(registerUser);
-            if (!user) {
-                throw new BadRequestException('Failed to register user');
-            }
-
-        } catch (error) {
-            throw new InternalServerErrorException(`An error occurred while registering the user: ${error.message}`);
-        }
-    }
-
-    @Get('user-info')
-    @HttpCode(HttpStatus.OK)
-    async getUserInfo(@Req() req: Request): Promise<any> {
-        try {
-            const authHeader = req.headers['authorization'];
-            if (!authHeader) {
-                throw new UnauthorizedException('No Authorization header');
-            }
-            const token = authHeader.replace('Bearer ', '');
-            const payload = this.jwtService.decode(token);
-    
-            if (!payload) {
-                throw new UnauthorizedException('Invalid token');
-            }
-    
-            return { payload };
-        } catch (error) {
-            throw new InternalServerErrorException(`An error occurred while retrieving user info: ${error.message}`);
-        }
-    }
-
-    @Get('validate-token')
-    @HttpCode(HttpStatus.OK)
-    async validateToken(@Req() req: Request): Promise<any> {
-        try {
-            const authHeader = req.headers['authorization'];
-            if (!authHeader) {
-                throw new UnauthorizedException('Missing Authorization header');
-            }
-
-            const token = authHeader.replace('Bearer ', '');
-            const isValid = await this.verifyTokenUseCase.execute(token);
-            
-            return { isValid };
-            
-        } catch (error) {
-            if (error.name === 'TokenExpiredError') {
-                throw new UnauthorizedException('Token has expired');
-            } else if (error.name === 'JsonWebTokenError') {
-                throw new UnauthorizedException('Invalid token');
-            } else {
-                throw new InternalServerErrorException(
-                    `An error occurred while validating token: ${error.message}`
-                );
-            }
+            throw new InternalServerErrorException(`An error occurred while logging in: ${error.message}`);
         }
     }
 }
