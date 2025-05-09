@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards, Req, Post, Body, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, UseGuards, Post, Body, InternalServerErrorException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../jwt/decorators/current-user.decorator';
 import { JwtPayload } from '../jwt/types/jwt-payload.interface';
@@ -11,7 +11,6 @@ import { GetUserUseCase } from 'src/auth/application/use-cases/get-user.use-case
 import { RolesGuard } from '../jwt/guards/roles.guard';
 import { EmitStudentRegisterUseCase } from 'src/auth/application/use-cases/emit-student-register.use-case';
 import { EmitStudentRegisterError } from 'src/auth/application/errors/emit-student-register.error';
-import { In } from 'typeorm';
 
 
 @Controller('api/v1/users')
