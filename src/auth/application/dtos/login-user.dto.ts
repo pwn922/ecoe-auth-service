@@ -1,6 +1,7 @@
+import { OAuthUser } from "../type/oauth-user.type";
 
 
 export class LoginUserDto {
-    email: string;
+    oauthUser: OAuthUser;
     userType: string;
 }
