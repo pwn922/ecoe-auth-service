@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ITokenServiceOutputPort } from '../ports/out/token-service.output-port';
 import { LoginUserDto } from '../dtos/login-user.dto';
 import { TokenPayloadDto } from '../dtos/token-payload.dto';
 import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.repository.out.port';
@@ -7,6 +6,8 @@ import { UnauthorizedAccessError } from '../errors/unauthorized-access.error';
 import { UserMapper } from '../mappers/user.mapper';
 import { LoginUserInputPort } from '../ports/in/login.in.port';
 import { TokenDto } from '../dtos/token.dto';
+import { ITokenManagerPort } from '../ports/out/token-manager.out.port';
+
 
 @Injectable()
 export class LoginUserUseCase implements LoginUserInputPort {
@@ -14,23 +15,23 @@ export class LoginUserUseCase implements LoginUserInputPort {
         @Inject('IUserRepositoryOutputPort')
         private readonly userRepository: IUserRepositoryOutputPort,
 
-        @Inject('ITokenServiceOutputPort')
-        private readonly tokenService: ITokenServiceOutputPort,
+        @Inject('ITokenManagerOutputPort')
+        private readonly tokenService: ITokenManagerPort,
     ) {}
 
     async execute(dto: LoginUserDto): Promise<TokenDto> {
         try {
-            const user = await this.userRepository.findByEmail(dto.email);
+            const user = await this.userRepository.findByEmail(dto.oauthUser.email);
 
             if (!user) {
-                throw new UnauthorizedAccessError('Unauthorized access');
-            }
-
-            if (user.getRole().toPrimitives().name !== dto.userType) {
-                throw new UnauthorizedAccessError('User role does not match');
+                throw new UnauthorizedAccessError('Invalid user');
             }
 
             const userPrimitives = UserMapper.toPrimitives(user);
+            
+            if (userPrimitives.role.name !== dto.userType) {
+                throw new UnauthorizedAccessError('Invalid user role');
+            }
 
             const tokenPayload: TokenPayloadDto = {
                 sub: userPrimitives.id,
