@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
-import { GoogleUserPayload } from '../types/google-user-payload.type';
 import { ConfigService } from '@nestjs/config';
+import { IOAuthAuthProviderOutPort } from 'src/auth/application/ports/out/oauth-provider.out.port';
+import { OAuthUser } from 'src/auth/application/type/oauth-user.type';
 
 
 @Injectable()
-export class GoogleService {
+export class GoogleServiceAdapter implements IOAuthAuthProviderOutPort {
     private readonly clientId: string;
     private readonly clientSecret: string;
     private readonly redirectUri: string;
@@ -31,8 +32,7 @@ export class GoogleService {
         this.client = new OAuth2Client(this.clientId, this.clientSecret, this.redirectUri);
     }
 
-    // TODO: COMPROBAR CON CORREOS QUE SEAN DE LA UCN
-    async verifyToken(code: string): Promise<GoogleUserPayload | null> {
+    async verifyToken(code: string): Promise<OAuthUser | null> {
         try {
             const { tokens } = await this.client.getToken(code);
             const idToken = tokens.id_token;
@@ -54,17 +54,17 @@ export class GoogleService {
                 return null;
             }
 
-            const googleUserPayload: GoogleUserPayload = {
+            const oauthUserPayload: OAuthUser = {
                 email: payload.email,
                 name: payload.name,
-                hd: payload.hd,
+                provider: 'google',
+                hostedDomain: payload.hd,
             };
 
-            return googleUserPayload;
+            return oauthUserPayload;
         } catch (e) {
             console.error('Token verification error:', e);
             return null;
         }
     }
-
 }
