@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards, Req, Post, Body, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, UseGuards, Req, Post, Body, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../jwt/decorators/current-user.decorator';
 import { JwtPayload } from '../jwt/types/jwt-payload.interface';
@@ -26,19 +26,25 @@ export class UserController {
     @Get('me')
     @HttpCode(HttpStatus.OK)
     async get(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
-        const userId = user.sub;
-        const foundUser = await this.getUserUseCase.execute(userId);
-        if (!foundUser) {
-            throw new BadRequestException('User not found');
+
+        try {
+            const userId = user.sub;
+            const foundUser = await this.getUserUseCase.execute(userId);
+            if (!foundUser) {
+                throw new InternalServerErrorException('User not found');
+            }
+
+            const userPayload: UserResponseDto = {
+                id: foundUser.id,
+                email: foundUser.email,
+                role: foundUser.role,
+            };
+
+            return userPayload;    
         }
-
-        const userPayload: UserResponseDto = {
-            id: foundUser.id,
-            email: foundUser.email,
-            role: foundUser.role,
-        };
-
-        return userPayload;           
+        catch (error) {
+            throw new InternalServerErrorException(`Failed to get user: ${error.message}`);
+        }
     }
 
     @UseGuards(AuthGuard('jwt'), RolesGuard)
