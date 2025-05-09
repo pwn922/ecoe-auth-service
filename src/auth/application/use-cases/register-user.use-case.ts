@@ -7,6 +7,8 @@ import { User } from "src/auth/domain/entities/user.entity";
 import { UserAlreadyExistsError } from "../errors/user-already-exists.error";
 import { RoleNotFoundError } from "src/auth/domain/errors/role-not-found.error";
 import { RegisterUserInputPort } from "../ports/in/register.in.port";
+import { IUserEventsOutPort } from "../ports/out/user-event.out.port";
+
 
 @Injectable()
 export class RegisterUserUseCase implements RegisterUserInputPort {
@@ -15,6 +17,8 @@ export class RegisterUserUseCase implements RegisterUserInputPort {
         private readonly userRepository: IUserRepositoryOutputPort,
         @Inject('IRoleRepositoryOutputPort')
         private readonly roleRepository: IRoleRepositoryOutputPort,
+        @Inject('IUserEventsOutPort')
+        private readonly userEventsService: IUserEventsOutPort
     ) {}
 
     async execute(registerUserDto: RegisterUserDto): Promise<User> {
@@ -36,7 +40,9 @@ export class RegisterUserUseCase implements RegisterUserInputPort {
             },
         });
 
-        return this.userRepository.save(user);
+        const newUser = await this.userRepository.save(user);
+
+        return newUser;
     }
 
     private async checkUserExists(email: string): Promise<void> {
