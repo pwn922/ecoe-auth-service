@@ -1,7 +1,7 @@
 import { ArgumentInvalidError } from "../errors/argument-invalid.error";
 
 
-export class PasswordValueObject {
+export class PasswordHashValueObject {
     private readonly value: string;
     constructor(value: string) {
         this.value = value;
