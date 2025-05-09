@@ -1,0 +1,21 @@
+@AUTH_URL = http://127.0.0.1:3000
+
+@API_VERSION = /api/v1
+
+@USERS_ENDPOINT = /users
+
+@TOKEN=
+
+### Create User
+POST {{AUTH_URL}}{{API_VERSION}}{{USERS_ENDPOINT}} HTTP/1.1
+CONTENT-TYPE: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "rut": "12345678-9",
+    "email": "example8@alumnos.ucn.cl",
+    "role": "estudiante"
+}
+
+
+
