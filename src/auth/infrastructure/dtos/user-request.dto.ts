@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 
-export class RegisterUserRequestDto {
+export class UserRequestDto {
     @IsString()
     @IsOptional()
     rut: string;

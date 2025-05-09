@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class LoginUserRequestDto {
+
+export class LoginGmailUserRequestDto {
     @IsString()
     @IsNotEmpty()
     code: string;
@@ -10,8 +11,3 @@ export class LoginUserRequestDto {
     userType: string;
 }
 
-export class LoginUserResponseDto {
-    @IsString()
-    @IsNotEmpty()
-    accessToken: string;
-}
