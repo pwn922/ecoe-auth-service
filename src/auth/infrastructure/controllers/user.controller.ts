@@ -26,7 +26,6 @@ export class UserController {
     @Get('me')
     @HttpCode(HttpStatus.OK)
     async get(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
-
         try {
             const userId = user.sub;
             const foundUser = await this.getUserUseCase.execute(userId);
