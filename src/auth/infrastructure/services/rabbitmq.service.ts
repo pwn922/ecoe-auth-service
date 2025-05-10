@@ -2,9 +2,11 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import amqp, { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import { Channel } from 'amqplib';
+import { IUserEventsOutPort } from 'src/auth/application/ports/out/user-event.out.port';
 
 @Injectable()
-export class RabbitMQServiceAdapter implements OnModuleInit, OnModuleDestroy {
+export class RabbitMQServiceAdapter
+  implements OnModuleInit, OnModuleDestroy, IUserEventsOutPort {
     private connection: AmqpConnectionManager;
     private channelWrapper: ChannelWrapper;
 
@@ -18,9 +20,8 @@ export class RabbitMQServiceAdapter implements OnModuleInit, OnModuleDestroy {
 
         this.connection = amqp.connect([uri]);
         this.channelWrapper = this.connection.createChannel({
-            setup: (channel: Channel) => {
-                return channel.assertQueue('student_registration', { durable: true });
-            },
+            setup: (channel: Channel) =>
+            channel.assertQueue('student_registration', { durable: true }),
         });
     }
 
@@ -29,10 +30,13 @@ export class RabbitMQServiceAdapter implements OnModuleInit, OnModuleDestroy {
         const buffer = Buffer.from(JSON.stringify(message));
 
         try {
-            await this.channelWrapper.sendToQueue('student_registration', buffer, {
-                persistent: true,
-            });
-            console.log(`Message sent: ${JSON.stringify(message)}`);
+            await this.channelWrapper.sendToQueue(
+                'student_registration', 
+                buffer, {
+                    persistent: true,
+                }
+            );
+            console.log(`Event sent: ${JSON.stringify(message)}`);
         } catch (error) {
             console.error('Failed to send message', error);
             throw new Error('Failed to send message to student_registration queue');
