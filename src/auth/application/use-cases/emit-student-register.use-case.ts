@@ -1,10 +1,12 @@
 import { User } from "src/auth/domain/entities/user.entity";
 import { IUserEventsOutPort } from "../ports/out/user-event.out.port";
 import { EmitStudentRegisterError } from "../errors/emit-student-register.error";
+import { Inject } from "@nestjs/common";
 
 
 export class EmitStudentRegisterUseCase {
     constructor(
+        @Inject('IUserEventsOutPort')
         private readonly userEventsService: IUserEventsOutPort,
     ) {}
 
