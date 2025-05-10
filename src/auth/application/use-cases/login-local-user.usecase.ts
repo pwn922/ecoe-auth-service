@@ -39,6 +39,10 @@ export class LoginLocalUserUseCase implements LoginLocalUserInputPort {
 
         const creds = await this.credentialRepo.findByUserId(userPrimitives.id);
 
+        if (!creds) {
+            throw new UnauthorizedAccessError('Invalid credentials');
+        }
+
         const isPasswordValid = await this.passwordHasher.compare(
             dto.password,
             creds.getPasswordHash(),
