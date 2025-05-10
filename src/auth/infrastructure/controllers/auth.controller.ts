@@ -36,7 +36,8 @@ export class AuthController {
                 throw new UnauthorizedException(error.message);
             }
             
-            throw new InternalServerErrorException('Unexpected error during login');
+            console.error('Error during login process:', error.message);
+            throw new InternalServerErrorException('Unexpected error during login process.');
         }
     }
     
