@@ -26,7 +26,7 @@ import { AppService } from './app.service';
           transport: Transport.RMQ,
           options: {
             urls: [configService.get<string>('RABBITMQ_URI')],
-            queue: 'student_registration',
+            queue: 'student_registration_queue',
             queueOptions: {
               durable: true,
             },
