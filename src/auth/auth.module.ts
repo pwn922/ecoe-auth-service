@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -28,7 +27,6 @@ import { EmitStudentRegisterUseCase } from './application/use-cases/emit-student
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forFeature([UserEntity, RoleEntity, LocalCredentialOrmEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule,
