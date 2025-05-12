@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AppController } from './app.controller';
@@ -17,6 +17,7 @@ import { AppService } from './app.service';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => typeOrmConfig(configService),
     }),
+    /*
     ClientsModule.registerAsync([
       {
         name: 'RABBITMQ_CLIENT',
@@ -34,6 +35,7 @@ import { AppService } from './app.service';
         }),
       },
     ]),
+    */
     AuthModule,
   ],
   controllers: [AppController],
