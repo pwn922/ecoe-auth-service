@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { LoginUserDto } from '../dtos/login-user.dto';
 import { TokenPayloadDto } from '../dtos/token-payload.dto';
 import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.repository.out.port';
@@ -9,7 +9,6 @@ import { TokenDto } from '../dtos/token.dto';
 import { ITokenManagerPort } from '../ports/out/token-manager.out.port';
 
 
-@Injectable()
 export class LoginUserUseCase implements LoginUserInputPort {
     constructor(
         @Inject('IUserRepositoryOutputPort')
