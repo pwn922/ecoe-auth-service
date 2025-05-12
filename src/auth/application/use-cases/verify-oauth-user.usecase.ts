@@ -1,11 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { VerifyOAuthUserInputPort } from '../ports/in/verify-oauth-user.in.port';
 import { IOAuthAuthProviderOutPort } from '../ports/out/oauth-provider.out.port';
 import { UnauthorizedAccessError } from '../errors/unauthorized-access.error';
 import { OAuthUser } from '../type/oauth-user.type';
 
 
-@Injectable()
 export class VerifyOAuthUserUseCase implements VerifyOAuthUserInputPort {
     constructor(
         @Inject('IOAuthAuthProviderOutPort')
