@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { IUserRepositoryOutputPort } from "src/auth/domain/ports/out/user.repository.out.port";
 import { IRoleRepositoryOutputPort } from "src/auth/domain/ports/out/role.repository.out.port";
 import { RegisterUserDto } from "../dtos/register-user.dto";
@@ -7,18 +7,14 @@ import { User } from "src/auth/domain/entities/user.entity";
 import { UserAlreadyExistsError } from "../errors/user-already-exists.error";
 import { RoleNotFoundError } from "src/auth/domain/errors/role-not-found.error";
 import { RegisterUserInputPort } from "../ports/in/register.in.port";
-import { IUserEventsOutPort } from "../ports/out/user-event.out.port";
 
 
-@Injectable()
 export class RegisterUserUseCase implements RegisterUserInputPort {
     constructor(
         @Inject('IUserRepositoryOutputPort')
         private readonly userRepository: IUserRepositoryOutputPort,
         @Inject('IRoleRepositoryOutputPort')
         private readonly roleRepository: IRoleRepositoryOutputPort,
-        @Inject('IUserEventsOutPort')
-        private readonly userEventsService: IUserEventsOutPort
     ) {}
 
     async execute(registerUserDto: RegisterUserDto): Promise<User> {
