@@ -22,7 +22,6 @@ import { TypeOrmLocalCredentialRepository } from './infrastructure/repositories/
 import { LoginLocalUserUseCase } from './application/use-cases/login-local-user.usecase';
 import { LocalCredentialOrmEntity } from './infrastructure/entities/local-credential.entity.orm';
 import { RabbitMQServiceAdapter } from './infrastructure/services/rabbitmq.service';
-import { EmitStudentRegisterUseCase } from './application/use-cases/emit-student-register.use-case';
 
 
 @Module({
@@ -39,7 +38,6 @@ import { EmitStudentRegisterUseCase } from './application/use-cases/emit-student
     GetUserUseCase,
     VerifyOAuthUserUseCase,
     LoginLocalUserUseCase,
-    EmitStudentRegisterUseCase,
     {
         provide: 'IOAuthAuthProviderOutPort',
         useClass: GoogleServiceAdapter,
