@@ -80,7 +80,7 @@ export class AuthController {
             console.log('Validating user ID:', userId);
             const user = await this.getUserUseCase.execute(userId);
             console.log('User found:', user);
-            if (!user || user.role !== 'student') {
+            if (!user || user.role !== 'estudiante') {
                 return false;
             }
             
