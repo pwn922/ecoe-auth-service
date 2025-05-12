@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 import { LoginLocalUserInputPort } from '../ports/in/login-local.in.port';
 import { IUserRepositoryOutputPort } from 'src/auth/domain/ports/out/user.repository.out.port';
@@ -12,7 +12,6 @@ import { UserMapper } from '../mappers/user.mapper';
 import { IPasswordHasherOutputPort } from '../ports/out/password-hasher.output-port';
 import { ILocalCredentialRepositoryOutputPort } from 'src/auth/domain/ports/out/local-credential.repository.out.port';
 
-@Injectable()
 export class LoginLocalUserUseCase implements LoginLocalUserInputPort {
     constructor(
         @Inject('IUserRepositoryOutputPort')
