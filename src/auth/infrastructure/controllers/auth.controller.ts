@@ -8,14 +8,17 @@ import { VerifyOAuthUserUseCase } from 'src/auth/application/use-cases/verify-oa
 import { LoginLocalUserRequestDto } from '../dtos/login-local-user-request.dto';
 import { LoginLocalUserUseCase } from 'src/auth/application/use-cases/login-local-user.usecase';
 import { LoginLocalUserDto } from 'src/auth/application/dtos/login-local-user.dto';
-
+import { MessagePattern, RpcException } from '@nestjs/microservices';
+import { GetUserUseCase } from 'src/auth/application/use-cases/get-user.use-case';
+import { validate as isUUID } from 'uuid';
 
 @Controller('api/v1/auth')
 export class AuthController {
     constructor(
         private readonly loginUserUseCase: LoginUserUseCase,
         private readonly verifyOAuthUserUseCase: VerifyOAuthUserUseCase,
-        private readonly loginLocalUserUseCase: LoginLocalUserUseCase
+        private readonly loginLocalUserUseCase: LoginLocalUserUseCase,
+        private readonly getUserUseCase: GetUserUseCase,
     ) {}
  
 
@@ -45,10 +48,12 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async loginWithGmail(@Body() body: LoginGmailUserRequestDto): Promise<TokenDto> {
         try {
-            const oauthUser = await this.verifyOAuthUserUseCase.execute(body.code);
+            const { code, userType } = body;
+
+            const oauthUser = await this.verifyOAuthUserUseCase.execute(code);
             const loginUserDto: LoginUserDto = {
                 oauthUser: oauthUser,
-                userType: body.userType
+                userType: userType
             };
 
             const token = await this.loginUserUseCase.execute(loginUserDto);
@@ -61,6 +66,27 @@ export class AuthController {
             }
 
             throw new InternalServerErrorException(`An error occurred while logging in: ${error.message}`);
+        }
+    }
+
+    @MessagePattern('validate_user_student')
+    async validateUserStudent(userId: string): Promise<boolean> {
+        try {
+            if (!isUUID(userId)) {
+                throw new Error('Invalid UUID format');
+            }
+
+            console.log('Validating user ID:', userId);
+            const user = await this.getUserUseCase.execute(userId);
+            console.log('User found:', user);
+            if (!user || user.role !== 'student') {
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error during user validation:', error);
+            throw new RpcException('Error during user validation');
         }
     }
 }
