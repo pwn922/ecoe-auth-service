@@ -28,7 +28,7 @@ export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
             where: { id },
             relations: ['role'],
         });
-        
+
         if (!entity) {
             return null;
         }
