@@ -18,7 +18,7 @@ export class UserMapper {
     static toEntity(user: User): UserEntity {
         const role = user.getRole();
         const entity = new UserEntity();
-        entity.id = user.getId()
+        entity.id = user.getId();
         entity.fullname = user.getFullname();
         entity.email = user.getEmail();
         entity.role = RoleMapper.toEntity(role);
