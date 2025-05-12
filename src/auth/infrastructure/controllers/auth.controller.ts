@@ -11,6 +11,7 @@ import { LoginLocalUserDto } from 'src/auth/application/dtos/login-local-user.dt
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { GetUserUseCase } from 'src/auth/application/use-cases/get-user.use-case';
 import { validate as isUUID } from 'uuid';
+import { UserNotFoundError } from 'src/auth/domain/errors/user-not-found.error';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -85,6 +86,10 @@ export class AuthController {
             
             return true;
         } catch (error) {
+            if (error instanceof UserNotFoundError) {
+                throw new RpcException('User not found');
+            }
+            
             console.error('Error during user validation:', error);
             throw new RpcException('Error during user validation');
         }
