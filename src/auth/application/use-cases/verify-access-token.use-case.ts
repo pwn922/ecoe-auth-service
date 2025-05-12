@@ -1,9 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { TokenPayloadDto } from "../dtos/token-payload.dto";
 import { ITokenManagerPort } from "../ports/out/token-manager.out.port";
 
 
-@Injectable()
 export class VerifyAccessTokenUseCase {
     constructor(
         @Inject('ITokenManagerOutputPort')
