@@ -47,8 +47,8 @@ export class UserController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles('jefatura')
+    //@UseGuards(AuthGuard('jwt'), RolesGuard)
+    //@Roles('jefatura')
     async create(@Body() body: UserRequestDto): Promise<void> {
         const { email, role } = body;
         const registerUserDto: RegisterUserDto = { email, role };

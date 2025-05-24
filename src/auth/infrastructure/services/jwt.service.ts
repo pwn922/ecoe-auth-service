@@ -24,7 +24,7 @@ export class JwtServiceAdapter implements ITokenManagerPort {
     async generateAccessToken(payload: TokenPayloadDto): Promise<string> {
         return this.jwtService.signAsync(payload, {
             secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-            expiresIn: '1h',
+            expiresIn: '1d',
         });
     }
 
