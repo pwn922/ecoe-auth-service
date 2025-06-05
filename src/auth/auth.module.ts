@@ -22,6 +22,7 @@ import { TypeOrmLocalCredentialRepository } from './infrastructure/repositories/
 import { LoginLocalUserUseCase } from './application/use-cases/login-local-user.usecase';
 import { LocalCredentialOrmEntity } from './infrastructure/entities/local-credential.entity.orm';
 import { RabbitMQServiceAdapter } from './infrastructure/services/rabbitmq.service';
+import { AuthConsumers } from './infrastructure/messages/consumers/auth-consumers';
 
 
 @Module({
@@ -30,7 +31,7 @@ import { RabbitMQServiceAdapter } from './infrastructure/services/rabbitmq.servi
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule,
   ],
-  controllers: [AuthController, UserController],
+  controllers: [AuthController, UserController, AuthConsumers],
   providers: [
     JwtStrategy,
     LoginUserUseCase,
