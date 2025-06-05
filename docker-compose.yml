@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  auth-service:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: ${DB_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    command: npm run start:prod
+
+  rabbitmq:
+    image: "rabbitmq:3-management" 
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  pgdata:
+  rabbitmq_data:

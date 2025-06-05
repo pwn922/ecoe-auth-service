@@ -1,0 +1,14 @@
+@AUTH_URL = http://127.0.0.1:3000
+
+@API_VERSION = /api/v1
+
+@LOGIN_ENDPOINT = /auth/login-local
+
+### Login with local credentials
+POST {{AUTH_URL}}{{API_VERSION}}{{LOGIN_ENDPOINT}} HTTP/1.1
+CONTENT-TYPE: application/json
+
+{
+    "email": "jefatura@jf.ucn.cl",
+    "password": "password_for_jefatura"
+}

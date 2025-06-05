@@ -1,1 +1,0 @@
-# ecoe-auth-service
