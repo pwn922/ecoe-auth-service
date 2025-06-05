@@ -20,6 +20,10 @@ export class LoginUserUseCase implements LoginUserInputPort {
 
     async execute(dto: LoginUserDto): Promise<TokenDto> {
         try {
+            if (!dto.oauthUser) {
+                throw new UnauthorizedAccessError('Invalid oauth user');
+            }
+
             const user = await this.userRepository.findByEmail(dto.oauthUser.email);
 
             if (!user) {
@@ -27,6 +31,14 @@ export class LoginUserUseCase implements LoginUserInputPort {
             }
 
             const userPrimitives = UserMapper.toPrimitives(user);
+            const oauthFullname = dto.oauthUser.name;
+            if (user.getFullname() !== oauthFullname) {
+                const updatedUser = UserMapper.toDomain({
+                    ...userPrimitives,
+                    fullname: oauthFullname,
+                });
+                await this.userRepository.update(updatedUser);
+            }
             
             if (userPrimitives.role.name !== dto.userType) {
                 throw new UnauthorizedAccessError('Invalid user role');
