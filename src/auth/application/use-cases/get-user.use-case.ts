@@ -21,6 +21,7 @@ export class GetUserUseCase {
         const userPrimitives = UserMapper.toPrimitives(user);
         const userDto: UserDto = {
             id: userPrimitives.id,
+            fullname: userPrimitives.fullname,
             email: userPrimitives.email,
             role: userPrimitives.role.name,
         }
