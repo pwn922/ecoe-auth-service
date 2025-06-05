@@ -24,7 +24,10 @@ export class RegisterUserUseCase implements RegisterUserInputPort {
             throw new RoleNotFoundError('Role not found');
         }
 
-        await this.checkUserExists(registerUserDto.email);
+        const userExists = await this.checkUserExists(registerUserDto.email);
+        if (userExists) {
+            throw new UserAlreadyExistsError('User already exists');
+        }
         
         const user = UserMapper.toDomain({
             id: undefined,
@@ -41,11 +44,9 @@ export class RegisterUserUseCase implements RegisterUserInputPort {
         return newUser;
     }
 
-    private async checkUserExists(email: string): Promise<void> {
+    private async checkUserExists(email: string): Promise<boolean> {
         const existingUser = await this.userRepository.findByEmail(email);
-        if (existingUser) {
-            throw new UserAlreadyExistsError('User already exists');
-        }
+        return !!existingUser;
     }
 }
 
