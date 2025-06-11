@@ -4,4 +4,5 @@ export interface OAuthUser {
     name: string;
     provider?: string;
     hostedDomain?: string;
+    picture?: string | null;
 }
