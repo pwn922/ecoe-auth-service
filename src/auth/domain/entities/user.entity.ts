@@ -9,17 +9,20 @@ export class User {
     private readonly fullname: FullnameValueObject;
     private readonly email: EmailValueObject;
     private readonly role: Role;
+    private readonly picture?: string | null;
 
     private constructor(
         id: IdValueObject | null,
         fullname: FullnameValueObject,
         email: EmailValueObject,
         role: Role,
+        picture?: string | null
     ) {
             this.id = id;
             this.fullname = fullname;
             this.email = email;
             this.role = role;
+            this.picture = picture ?? null;
     }
 
     static fromPrimitives(props: UserProps): User {
@@ -32,6 +35,7 @@ export class User {
                 id: props.role.id,
                 name: props.role.name,
             }),
+            props.picture ?? null
         );
     }
 
@@ -41,7 +45,12 @@ export class User {
             fullname: this.fullname?.toPrimitive() ?? '',
             email: this.email.toPrimitive(),
             role: this.role.toPrimitives(),
+            picture: this.picture ?? null,
         };
+    }
+
+    getPicture(): string | null {
+        return this.picture ?? null;
     }
 
     getId(): string | undefined {
