@@ -59,6 +59,7 @@ export class GoogleServiceAdapter implements IOAuthAuthProviderOutPort {
                 name: payload.name,
                 provider: 'google',
                 hostedDomain: payload.hd,
+                picture: payload.picture || null,
             };
 
             return oauthUserPayload;
