@@ -55,6 +55,9 @@ export class LoginUserUseCase implements LoginUserInputPort {
             const token: TokenDto = {
                 accessToken,
                 refreshToken,
+                user: {
+                    picture: dto.oauthUser.picture || null,
+                }
             };
 
             return token
