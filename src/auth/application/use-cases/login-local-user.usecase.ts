@@ -63,6 +63,9 @@ export class LoginLocalUserUseCase implements LoginLocalUserInputPort {
         return {
             accessToken,
             refreshToken,
+            user: {
+                picture: userPrimitives.picture ?? null,
+            },
         };
     }
 }
