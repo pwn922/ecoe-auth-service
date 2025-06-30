@@ -73,14 +73,32 @@ export class AuthController {
     @MessagePattern('validate_user_student')
     async validateUserStudent(userId: string): Promise<boolean> {
         try {
-            if (!isUUID(userId)) {
-                throw new Error('Invalid UUID format');
-            }
-
             console.log('Validating user ID:', userId);
             const user = await this.getUserUseCase.execute(userId);
             console.log('User found:', user);
             if (!user || user.role !== 'estudiante') {
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error during user validation:', typeof error, error);
+            if (error instanceof UserNotFoundError) {
+                return false;    
+            }
+            
+            console.error('Error during user validation:', error);
+            throw new RpcException('Error during user validation');
+        }
+    }
+
+    @MessagePattern('validate_user_teacher')
+    async validateUserTeacher(userId: string): Promise<boolean> {
+        try {
+            console.log('Validating user ID:', userId);
+            const user = await this.getUserUseCase.execute(userId);
+            console.log('User found:', user);
+            if (!user || user.role !== 'docente-asignatura') {
                 return false;
             }
             
