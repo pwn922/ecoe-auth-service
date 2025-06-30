@@ -88,7 +88,7 @@ export class AuthController {
         } catch (error) {
             console.error('Error during user validation:', typeof error, error);
             if (error instanceof UserNotFoundError) {
-                throw new RpcException('User not found');
+                return false;    
             }
             
             console.error('Error during user validation:', error);
