@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards, Post, Body, InternalServerErrorException, ConflictException } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, UseGuards, Post, Body, InternalServerErrorException, ConflictException, NotFoundException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../jwt/decorators/current-user.decorator';
 import { JwtPayload } from '../jwt/types/jwt-payload.interface';
@@ -62,7 +62,7 @@ export class UserController {
             }
 
             if (error instanceof RoleNotFoundError) {
-                throw new ConflictException('Role not found');
+                throw new NotFoundException('Role not found');
             }
 
             throw new InternalServerErrorException('Unexpected error occurred while creating user');
