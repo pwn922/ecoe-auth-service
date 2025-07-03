@@ -31,4 +31,7 @@ export class UserEntity {
     @ManyToOne(() => RoleEntity, role => role.users)
     @JoinColumn({ name: 'role_id' })
     role: RoleEntity;
+
+    @Column({ default: false })
+    isProtected: boolean;
 }
