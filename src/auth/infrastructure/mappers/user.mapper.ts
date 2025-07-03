@@ -11,7 +11,8 @@ export class UserMapper {
             role: {
                 id: entity.role.id,
                 name: entity.role.name,
-            }
+            },
+            isProtected: entity.isProtected,
         });
     }
 
