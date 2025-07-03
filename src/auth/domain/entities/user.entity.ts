@@ -58,7 +58,7 @@ export class User {
     }
 
     getFullname(): string {
-        return this.fullname?.toPrimitive() ?? '';
+        return this.fullname?.toPrimitive() ?? 'N/A';
     }
 
     getEmail(): string {
