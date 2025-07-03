@@ -49,6 +49,14 @@ export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
         return UserMapper.toDomain(entity);
     }
 
+    async findAll(): Promise<User[]> {
+        const entities = await this.usersRepository.find({
+            relations: ['role'],
+        });
+
+        return entities.map((entity) => UserMapper.toDomain(entity));
+    }
+
     async update(user: User): Promise<void> {
         const entity = await this.usersRepository.findOne({
             where: { id: user.getId() },
