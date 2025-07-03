@@ -37,6 +37,7 @@ export class RegisterUserUseCase implements RegisterUserInputPort {
                 id: roleExists.toPrimitives().id,
                 name: roleExists.toPrimitives().name,
             },
+            isProtected: false,
         });
 
         const newUser = await this.userRepository.save(user);
