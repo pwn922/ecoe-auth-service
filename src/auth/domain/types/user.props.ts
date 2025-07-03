@@ -7,4 +7,5 @@ export interface UserProps {
     email: string;
     // password: string;
     role: RoleProps;
+    isProtected: boolean;
 }
