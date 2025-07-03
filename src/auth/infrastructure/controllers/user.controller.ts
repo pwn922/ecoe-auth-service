@@ -49,16 +49,13 @@ export class UserController {
     @HttpCode(HttpStatus.CREATED)
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     //@Roles('jefatura')
-    async create(@Body() body: UserRequestDto): Promise<void> {
+    async create(@Body() body: UserRequestDto) {
         const { email, role } = body;
         const registerUserDto: RegisterUserDto = { email, role };
 
         try {
-            const user = await this.registerUserUseCase.execute(registerUserDto);
-
-            if (!user) {
-                throw new InternalServerErrorException('Failed to create user');
-            }
+            await this.registerUserUseCase.execute(registerUserDto);
+            return { message: 'User created successfully' };
         } catch (error) {
             if (error instanceof UserAlreadyExistsError) {
                 throw new ConflictException('User already exists');
