@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards, Post, Body, InternalServerErrorException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, UseGuards, Post, Body, InternalServerErrorException, ConflictException, NotFoundException, Param, Delete } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../jwt/decorators/current-user.decorator';
 import { JwtPayload } from '../jwt/types/jwt-payload.interface';
@@ -12,6 +12,9 @@ import { RolesGuard } from '../jwt/guards/roles.guard';
 import { UserNotFoundError } from 'src/auth/domain/errors/user-not-found.error';
 import { RoleNotFoundError } from 'src/auth/domain/errors/role-not-found.error';
 import { UserAlreadyExistsError } from 'src/auth/application/errors/user-already-exists.error';
+import { UserIdDto } from '../dtos/user-id.dto';
+import { DeleteUserUseCase } from 'src/auth/application/use-cases/delete-user.use-case';
+import { GetUsersUseCase } from 'src/auth/application/use-cases/get-users.use-case';
 
 
 @Controller('api/v1/auth/users')
@@ -19,18 +22,21 @@ export class UserController {
     constructor(
         private readonly getUserUseCase: GetUserUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
+        private readonly deleteUserUseCase: DeleteUserUseCase,
+        private readonly getUsersUseCase: GetUsersUseCase,
     ) {}
 
     @Get('me')
     @HttpCode(HttpStatus.OK)
     @UseGuards(AuthGuard('jwt'))
-    async get(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
+    async getUserMe(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
         const userId = user.sub;
         try {
             const userFound = await this.getUserUseCase.execute(userId);
             const userPayload: UserResponseDto = {
                 id: userFound.id,
                 email: userFound.email,
+                fullname: userFound.fullname,
                 role: userFound.role,
             };
 
@@ -45,11 +51,32 @@ export class UserController {
         }
     }
 
+    @Get(':id')
+    async getUserById(@Param() param: UserIdDto): Promise<UserResponseDto> {
+        try {
+            const userFound = await this.getUserUseCase.execute(param.id);
+            const userPayload: UserResponseDto = {
+                id: userFound.id,
+                email: userFound.email,
+                fullname: userFound.fullname,
+                role: userFound.role,
+            };
+
+            return userPayload;
+        }
+
+        catch (error) {
+            if (error instanceof UserNotFoundError) {
+                throw new InternalServerErrorException(error.message);
+            }
+        }
+    }
+
     @Post()
     @HttpCode(HttpStatus.CREATED)
     //@UseGuards(AuthGuard('jwt'), RolesGuard)
     //@Roles('jefatura')
-    async create(@Body() body: UserRequestDto) {
+    async createUser(@Body() body: UserRequestDto) {
         const { email, role } = body;
         const registerUserDto: RegisterUserDto = { email, role };
 
@@ -66,6 +93,34 @@ export class UserController {
             }
 
             throw new InternalServerErrorException('Unexpected error occurred while creating user');
+        }
+    }
+
+    @Delete(':id')
+    async deleteUser(@Param() param: UserIdDto): Promise<void> {
+        try {
+            await this.deleteUserUseCase.execute(param.id);
+        } catch (error) {
+            if (error instanceof UserNotFoundError) {
+                throw new NotFoundException('User not found');
+            }
+
+            throw new InternalServerErrorException('Failed to delete user');
+        }
+    }
+
+    @Get()
+    async getUsers() {
+        try {
+            const users = await this.getUsersUseCase.execute();
+            return users.map((user) => ({
+                id: user.getId(),
+                email: user.getEmail(),
+                fullname: user.getFullname(),
+                role: user.getEmail(),
+            }));
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to get users');
         }
     }
 }
