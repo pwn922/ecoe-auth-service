@@ -23,6 +23,8 @@ import { LoginLocalUserUseCase } from './application/use-cases/login-local-user.
 import { LocalCredentialOrmEntity } from './infrastructure/entities/local-credential.entity.orm';
 import { RabbitMQServiceAdapter } from './infrastructure/services/rabbitmq.service';
 import { AuthConsumers } from './infrastructure/messages/consumers/auth-consumers';
+import { GetUsersUseCase } from './application/use-cases/get-users.use-case';
+import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
 
 
 @Module({
@@ -37,6 +39,8 @@ import { AuthConsumers } from './infrastructure/messages/consumers/auth-consumer
     LoginUserUseCase,
     RegisterUserUseCase,
     GetUserUseCase,
+    GetUsersUseCase,
+    DeleteUserUseCase,
     VerifyOAuthUserUseCase,
     LoginLocalUserUseCase,
     {
