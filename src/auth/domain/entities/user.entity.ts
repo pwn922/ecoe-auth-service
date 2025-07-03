@@ -9,17 +9,20 @@ export class User {
     private readonly fullname: FullnameValueObject;
     private readonly email: EmailValueObject;
     private readonly role: Role;
+    private readonly isProtected: boolean;
 
     private constructor(
         id: IdValueObject | null,
         fullname: FullnameValueObject,
         email: EmailValueObject,
         role: Role,
+        isProtected: boolean,
     ) {
             this.id = id;
             this.fullname = fullname;
             this.email = email;
             this.role = role;
+            this.isProtected = isProtected;
     }
 
     static fromPrimitives(props: UserProps): User {
@@ -32,6 +35,7 @@ export class User {
                 id: props.role.id,
                 name: props.role.name,
             }),
+            props.isProtected,
         );
     }
 
@@ -41,6 +45,7 @@ export class User {
             fullname: this.fullname?.toPrimitive() ?? '',
             email: this.email.toPrimitive(),
             role: this.role.toPrimitives(),
+            isProtected: this.isProtected,
         };
     }
 
@@ -58,5 +63,9 @@ export class User {
 
     getEmail(): string {
         return this.email.toPrimitive();
+    }
+
+    getIsProtected(): boolean {
+        return this.isProtected;
     }
 }
