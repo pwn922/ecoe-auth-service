@@ -6,9 +6,9 @@ import { UserDto } from 'src/auth/application/dtos/user.dto';
 
 @Controller()
 export class AuthConsumers {
-  constructor(private readonly getUserProfileUseCase: GetUserUseCase) {}
+    constructor(private readonly getUserProfileUseCase: GetUserUseCase) { }
 
-  @MessagePattern(AuthPatterns.GET_USER_PROFILE)
+    @MessagePattern(AuthPatterns.GET_USER_PROFILE)
     async getUserProfile(@Payload() payload: { userId: string }): Promise<UserDto> {
         return this.getUserProfileUseCase.execute(payload.userId);
     }
