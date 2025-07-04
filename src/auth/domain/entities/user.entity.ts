@@ -53,8 +53,8 @@ export class User {
         return this.id?.toPrimitive();
     }
 
-    getRole(): string {
-        return this.role.toPrimitives().name;
+    getRole(): Role {
+        return this.role;
     }
 
     getFullname(): string {

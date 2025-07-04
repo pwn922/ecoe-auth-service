@@ -117,7 +117,7 @@ export class UserController {
                 id: user.getId(),
                 email: user.getEmail(),
                 fullname: user.getFullname(),
-                role: user.getRole(),
+                role: user.getRole().toPrimitives().name,
             }));
         } catch (error) {
             throw new InternalServerErrorException('Failed to get users');
