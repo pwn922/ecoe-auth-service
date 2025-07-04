@@ -25,6 +25,7 @@ import { RabbitMQServiceAdapter } from './infrastructure/services/rabbitmq.servi
 import { AuthConsumers } from './infrastructure/messages/consumers/auth-consumers';
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
+import { GetUserByEmailUseCase } from './application/use-cases/get-user-by-email.use-case';
 
 
 @Module({
@@ -43,6 +44,7 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'
     DeleteUserUseCase,
     VerifyOAuthUserUseCase,
     LoginLocalUserUseCase,
+    GetUserByEmailUseCase,
     {
         provide: 'IOAuthAuthProviderOutPort',
         useClass: GoogleServiceAdapter,
