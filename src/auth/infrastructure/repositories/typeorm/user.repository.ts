@@ -51,6 +51,7 @@ export class TypeOrmUserRepository implements IUserRepositoryOutputPort {
 
     async findAll(): Promise<User[]> {
         const entities = await this.usersRepository.find({
+            where: { isProtected: false },
             relations: ['role'],
         });
 
