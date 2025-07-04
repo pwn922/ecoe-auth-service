@@ -28,6 +28,7 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'
 import { GetUserByEmailUseCase } from './application/use-cases/get-user-by-email.use-case';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { GetTeachersUseCase } from './application/use-cases/get-teachers.use-case';
 
 
 @Module({
@@ -62,6 +63,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         VerifyOAuthUserUseCase,
         LoginLocalUserUseCase,
         GetUserByEmailUseCase,
+        GetTeachersUseCase,
         {
             provide: 'IOAuthAuthProviderOutPort',
             useClass: GoogleServiceAdapter,
