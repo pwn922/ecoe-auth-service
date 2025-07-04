@@ -81,8 +81,8 @@ export class UserController {
         const registerUserDto: RegisterUserDto = { email, role };
 
         try {
-            await this.registerUserUseCase.execute(registerUserDto);
-            return { message: 'User created successfully' };
+            const newUser = await this.registerUserUseCase.execute(registerUserDto);
+            return newUser;
         } catch (error) {
             if (error instanceof UserAlreadyExistsError) {
                 throw new ConflictException('User already exists');
