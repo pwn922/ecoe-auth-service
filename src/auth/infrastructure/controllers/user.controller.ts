@@ -53,6 +53,36 @@ export class UserController {
         }
     }
 
+    @Get('teachers')
+    async getTeachers() {
+        try {
+            const teachers = await this.getTeachersUseCase.execute();
+            return teachers.map((teacher) => ({
+                id: teacher.getId(),
+                email: teacher.getEmail(),
+                fullname: teacher.getFullname(),
+                role: teacher.getRole().toPrimitives().name,
+            }));
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to get teachers');
+        }
+    }
+
+    @Get()
+    async getUsers() {
+        try {
+            const users = await this.getUsersUseCase.execute();
+            return users.map((user) => ({
+                id: user.getId(),
+                email: user.getEmail(),
+                fullname: user.getFullname(),
+                role: user.getRole().toPrimitives().name,
+            }));
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to get users');
+        }
+    }
+
     @Get(':id')
     async getUserById(@Param() param: UserIdDto): Promise<UserResponseDto> {
         try {
@@ -113,36 +143,6 @@ export class UserController {
             }
 
             throw new InternalServerErrorException('Failed to delete user');
-        }
-    }
-
-    @Get()
-    async getUsers() {
-        try {
-            const users = await this.getUsersUseCase.execute();
-            return users.map((user) => ({
-                id: user.getId(),
-                email: user.getEmail(),
-                fullname: user.getFullname(),
-                role: user.getRole().toPrimitives().name,
-            }));
-        } catch (error) {
-            throw new InternalServerErrorException('Failed to get users');
-        }
-    }
-
-    @Get('teachers')
-    async getTeachers() {
-        try {
-            const teachers = await this.getTeachersUseCase.execute();
-            return teachers.map((teacher) => ({
-                id: teacher.getId(),
-                email: teacher.getEmail(),
-                fullname: teacher.getFullname(),
-                role: teacher.getRole().toPrimitives().name,
-            }));
-        } catch (error) {
-            throw new InternalServerErrorException('Failed to get teachers');
         }
     }
 }
