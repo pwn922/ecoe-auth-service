@@ -2,7 +2,6 @@ import { Inject, Injectable } from "@nestjs/common";
 import { IUserRepositoryOutputPort } from "src/auth/domain/ports/out/user.repository.out.port";
 import { UserNotFoundError } from "src/auth/domain/errors/user-not-found.error";
 import { ClientProxy } from "@nestjs/microservices";
-import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class DeleteUserUseCase {
@@ -21,11 +20,10 @@ export class DeleteUserUseCase {
         }
 
         if (user.getRole().toPrimitives().name === 'estudiante') {
-            await firstValueFrom(
-                this.studentClient.send('student.delete_by_user_id', { userId })
-            );
+            this.studentClient.emit('student.delete_by_user_id', { userId });
         }
 
         await this.userRepository.delete(user.getId());
     }
 }
+
