@@ -82,7 +82,12 @@ export class UserController {
 
         try {
             const newUser = await this.registerUserUseCase.execute(registerUserDto);
-            return newUser;
+            return {
+                id: newUser.getId(),
+                email: newUser.getEmail(),
+                fullname: newUser.getFullname(),
+                role: newUser.getRole(),
+            };
         } catch (error) {
             if (error instanceof UserAlreadyExistsError) {
                 throw new ConflictException('User already exists');
