@@ -86,7 +86,7 @@ export class UserController {
                 id: newUser.getId(),
                 email: newUser.getEmail(),
                 fullname: newUser.getFullname(),
-                role: newUser.getRole(),
+                role: newUser.getRole().toPrimitives().name,
             };
         } catch (error) {
             if (error instanceof UserAlreadyExistsError) {
