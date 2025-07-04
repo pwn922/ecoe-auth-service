@@ -15,6 +15,7 @@ import { UserAlreadyExistsError } from 'src/auth/application/errors/user-already
 import { UserIdDto } from '../dtos/user-id.dto';
 import { DeleteUserUseCase } from 'src/auth/application/use-cases/delete-user.use-case';
 import { GetUsersUseCase } from 'src/auth/application/use-cases/get-users.use-case';
+import { GetTeachersUseCase } from 'src/auth/application/use-cases/get-teachers.use-case';
 
 
 @Controller('api/v1/auth/users')
@@ -24,6 +25,7 @@ export class UserController {
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
         private readonly getUsersUseCase: GetUsersUseCase,
+        private readonly getTeachersUseCase: GetTeachersUseCase,
     ) {}
 
     @Get('me')
@@ -126,6 +128,21 @@ export class UserController {
             }));
         } catch (error) {
             throw new InternalServerErrorException('Failed to get users');
+        }
+    }
+
+    @Get('teachers')
+    async getTeachers() {
+        try {
+            const teachers = await this.getTeachersUseCase.execute();
+            return teachers.map((teacher) => ({
+                id: teacher.getId(),
+                email: teacher.getEmail(),
+                fullname: teacher.getFullname(),
+                role: teacher.getRole().toPrimitives().name,
+            }));
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to get teachers');
         }
     }
 }
