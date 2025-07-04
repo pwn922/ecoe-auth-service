@@ -26,53 +26,70 @@ import { AuthConsumers } from './infrastructure/messages/consumers/auth-consumer
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
 import { GetUserByEmailUseCase } from './application/use-cases/get-user-by-email.use-case';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity, RoleEntity, LocalCredentialOrmEntity]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule,
-  ],
-  controllers: [AuthController, UserController, AuthConsumers],
-  providers: [
-    JwtStrategy,
-    LoginUserUseCase,
-    RegisterUserUseCase,
-    GetUserUseCase,
-    GetUsersUseCase,
-    DeleteUserUseCase,
-    VerifyOAuthUserUseCase,
-    LoginLocalUserUseCase,
-    GetUserByEmailUseCase,
-    {
-        provide: 'IOAuthAuthProviderOutPort',
-        useClass: GoogleServiceAdapter,
-    },
-    {
-        provide: 'IUserRepositoryOutputPort',
-        useClass: TypeOrmUserRepository,
-    },
-    {
-        provide: 'IRoleRepositoryOutputPort',
-        useClass: TypeOrmRoleRepository,
-    },
-    {
-        provide: 'ILocalCredentialRepositoryOutputPort',
-        useClass: TypeOrmLocalCredentialRepository,
-    },  
-    {
-        provide: 'IUserEventsOutPort',
-        useClass: RabbitMQServiceAdapter,
-    },
-    {
-        provide: 'IPasswordHasherOutputPort',
-        useClass: BcryptServiceAdapter,
-    },
-    {
-        provide: 'ITokenManagerOutputPort',
-        useClass: JwtServiceAdapter,
-    },
-  ],
+    imports: [
+        TypeOrmModule.forFeature([UserEntity, RoleEntity, LocalCredentialOrmEntity]),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        JwtModule,
+        ClientsModule.registerAsync([{
+            name: 'STUDENT_SERVICE',
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+                transport: Transport.RMQ,
+                options: {
+                    urls: [configService.get<string>('RABBITMQ_URI')!],
+                    queue: 'student_queue',
+                    queueOptions: {
+                        durable: true,
+                    },
+                },
+            }),
+        },])
+    ],
+    controllers: [AuthController, UserController, AuthConsumers],
+    providers: [
+        JwtStrategy,
+        LoginUserUseCase,
+        RegisterUserUseCase,
+        GetUserUseCase,
+        GetUsersUseCase,
+        DeleteUserUseCase,
+        VerifyOAuthUserUseCase,
+        LoginLocalUserUseCase,
+        GetUserByEmailUseCase,
+        {
+            provide: 'IOAuthAuthProviderOutPort',
+            useClass: GoogleServiceAdapter,
+        },
+        {
+            provide: 'IUserRepositoryOutputPort',
+            useClass: TypeOrmUserRepository,
+        },
+        {
+            provide: 'IRoleRepositoryOutputPort',
+            useClass: TypeOrmRoleRepository,
+        },
+        {
+            provide: 'ILocalCredentialRepositoryOutputPort',
+            useClass: TypeOrmLocalCredentialRepository,
+        },
+        {
+            provide: 'IUserEventsOutPort',
+            useClass: RabbitMQServiceAdapter,
+        },
+        {
+            provide: 'IPasswordHasherOutputPort',
+            useClass: BcryptServiceAdapter,
+        },
+        {
+            provide: 'ITokenManagerOutputPort',
+            useClass: JwtServiceAdapter,
+        },
+    ],
 })
-export class AuthModule {}
+export class AuthModule { }
